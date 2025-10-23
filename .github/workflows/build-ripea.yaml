@@ -1,0 +1,83 @@
+name: 🚀 Build & Release RIPEA EAR
+
+on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Rama o tag de RIPEA a compilar'
+        default: 'ripea-1.0.4'
+        required: true
+  push:
+    tags:
+      - "v*"   # 🏷️ Se ejecuta al subir un tag
+
+jobs:
+  build-and-release:
+    name: 🏗️ Compilar y publicar EAR
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧾 Checkout workflow repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🌐 Clonar código RIPEA
+        run: |
+          git clone --branch ${{ github.event.inputs.branch }} --depth 1 https://github.com/GovernIB/ripea.git
+          echo "📁 Contenido del proyecto RIPEA:"
+          ls -la ripea
+
+      - name: ☕ Configurar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+
+      - name: 🧱 Compilar RIPEA EAR
+        working-directory: ripea
+        run: |
+          mvn -B clean package -DskipTests
+          echo "✅ Compilación completa (multi-módulo)"
+
+      - name: 📦 Localizar EAR
+        id: ear
+        run: |
+          FILE=$(find ripea-ear/target -type f -name "*.ear" | head -n 1)
+          if [ -z "$FILE" ]; then
+            echo "❌ No se encontró ningún archivo EAR en ripea-ear/target."
+            exit 1
+          fi
+          echo "file=$FILE" >> $GITHUB_OUTPUT
+          echo "EAR encontrado: $FILE"
+
+      - name: 🏷️ Crear Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref_name || github.event.inputs.branch }}
+          release_name: "RIPEA EAR ${{ github.ref_name || github.event.inputs.branch }}"
+          body: |
+            🧩 **Compilación automática de RIPEA**
+            - Repositorio fuente: [GovernIB/ripea](https://github.com/GovernIB/ripea)
+            - Rama: `${{ github.event.inputs.branch }}`
+            - Artefacto: `.ear`
+            - Fecha de build: ${{ github.run_started_at }}
+          draft: false
+          prerelease: false
+
+      - name: 🚀 Subir EAR al Release
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.ear.outputs.file }}
+          asset_name: RIPEA-${{ github.ref_name || github.event.inputs.branch }}.ear
+          asset_content_type: application/java-archive
+
+      - name: ✅ Confirmación final
+        run: echo "🎉 EAR publicado correctamente en el Release de GitHub"
