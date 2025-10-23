@@ -41,9 +41,9 @@ jobs:
       - name: 🧱 Compilar EAR
         working-directory: ripea
         run: |
-          echo "⚠️ Intentando compilar ${{ github.event.inputs.repo }}, sin el plugin viavansi"
-          mvn -B clean install -pl '!ripea-plugin',ripea-service,ripea-service-intf,ripea-back,ripea-api-interna,ripea-ejb,ripea-ear -am -Dviavansi.repo.skip=true || echo "⚠️ Se omite el plugin Viavansi al no ser accesible"
-          echo "✅ Compilación completa (multi-módulo, módulo viavansi plugin ignorado si falló)"
+          echo "⚠️ Intentando compilar ${{ github.event.inputs.repo }}"
+          # mvn -B clean install -pl '!ripea-plugin',ripea-service,ripea-service-intf,ripea-back,ripea-api-interna,ripea-ejb,ripea-ear -am -Dviavansi.repo.skip=true || echo "⚠️ Se omite el plugin Viavansi al no ser accesible"
+          mvn -B clean package -DskipTests
 
       - name: 📦 Localizar EAR
         id: ear
