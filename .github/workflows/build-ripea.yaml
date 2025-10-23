@@ -8,9 +8,17 @@ on:
         default: 'GovernIB/ripea'
         required: true
       branch:
-        description: '🌿 Rama o tag a compilar'
+        description: '🌿 Rama o tag'
         default: 'ripea-1.0'
         required: true
+      skip_tests:
+        description: 'Realizar pruebas unitarias?'
+        required: true
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+        default: 'false'
 
   push:
     tags:
@@ -42,7 +50,12 @@ jobs:
         working-directory: ripea
         run: |
           # mvn -B clean install -pl '!ripea-plugin',ripea-service,ripea-service-intf,ripea-back,ripea-api-interna,ripea-ejb,ripea-ear -am -Dviavansi.repo.skip=true || echo "⚠️ Se omite el plugin Viavansi al no ser accesible"
-          mvn -B clean package -DskipTests
+          mvn -B clean package -DskipTests=${{ github.event.inputs.skip_tests }} -Dviavansi.repo.skip=true
+
+      - name: 🧪 Ejecutar pruebas unitarias
+        working-directory: ripea
+        if: ${{ github.event.inputs.skip_tests == 'false' }}
+        run: mvn test
 
       - name: 📦 Localizar EAR
         id: ear
