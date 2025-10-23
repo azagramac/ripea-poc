@@ -12,7 +12,7 @@ on:
         default: 'ripea-1.0'
         required: true
       skip_tests:
-        description: 'Realizar pruebas unitarias?'
+        description: '🧪 Realizar pruebas unitarias?'
         required: true
         type: choice
         options:
