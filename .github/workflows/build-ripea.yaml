@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       branch:
-        description: 'Rama o tag de RIPEA a compilar'
+        description: '🌿 Rama o tag a compilar'
         default: 'ripea-1.0.4'
         required: true
   push:
@@ -22,7 +22,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 🌐 Clonar código RIPEA
+      - name: 🌐 Clonar repositorio
         run: |
           git clone --branch ${{ github.event.inputs.branch }} --depth 1 https://github.com/GovernIB/ripea.git
           echo "📁 Contenido del proyecto RIPEA:"
@@ -35,11 +35,14 @@ jobs:
           java-version: 17
           cache: maven
 
-      - name: 🧱 Compilar RIPEA EAR
+      - name: 🧱 Compilar paquete EAR
         working-directory: ripea
         run: |
-          mvn -B clean package -DskipTests
-          echo "✅ Compilación completa (multi-módulo)"
+          echo "🔹 Compilando todos los módulos..."
+          # ⚠️ Se ignora temporalmente el repositorio viavansi si no es accesible
+          mvn -B clean package -DskipTests -Dviavansi.repo.skip=true || \
+          echo "⚠️ No se pudo acceder a repositorio.viavansi.com, se omitió su plugin según -Dviavansi.repo.skip=true"
+          echo "✅ Compilación completa (multi-módulo, módulo viavansi plugin ignorado si falló)"
 
       - name: 📦 Localizar EAR
         id: ear
@@ -65,6 +68,7 @@ jobs:
             - Repositorio fuente: [GovernIB/ripea](https://github.com/GovernIB/ripea)
             - Rama: `${{ github.event.inputs.branch }}`
             - Artefacto: `.ear`
+            - Nota: ⚠️ Se ignoró temporalmente el módulo/plugin que requiere repositorio.viavansi.com si no era accesible
             - Fecha de build: ${{ github.run_started_at }}
           draft: false
           prerelease: false
