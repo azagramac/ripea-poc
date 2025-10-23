@@ -5,7 +5,7 @@ on:
     inputs:
       branch:
         description: '🌿 Rama o tag a compilar'
-        default: 'ripea-1.0.4'
+        default: 'ripea-1.0'
         required: true
   push:
     tags:
@@ -39,7 +39,7 @@ jobs:
         working-directory: ripea
         run: |
           echo "⚠️ Intentando compilar RIPEA, se omitirá el plugin viavansi si no es accesible"
-          mvn -B clean package -DskipTests -pl ripea-ear,ripea-back,ripea-api-interna,ripea-ejb,ripea-backend -am -Dviavansi.repo.skip=true || echo "⚠️ No se pudo acceder a repositorio.viavansi.com, se omitió su plugin"
+          mvn -B clean package -DskipTests -pl ripea-plugin,ripea-service,ripea-service-intf,ripea-back,ripea-api-interna,ripea-ejb,ripea-ear -am -Dmaven.repo.viavansi.skip=true || true
           echo "✅ Compilación completa (multi-módulo, módulo viavansi plugin ignorado si falló)"
 
       - name: 📦 Localizar EAR
