@@ -39,7 +39,7 @@ jobs:
         working-directory: ripea
         run: |
           echo "⚠️ Intentando compilar RIPEA, se omitirá el plugin viavansi si no es accesible"
-          mvn -B clean package -DskipTests -Dviavansi.repo.skip=true || echo "⚠️ No se pudo acceder a repositorio.viavansi.com, se omitió su plugin"
+          mvn -B clean package -DskipTests -pl !ripea-plugin -am -Dviavansi.repo.skip=true || echo "⚠️ No se pudo acceder a repositorio.viavansi.com, se omitió su plugin"
           echo "✅ Compilación completa (multi-módulo, módulo viavansi plugin ignorado si falló)"
 
       - name: 📦 Localizar EAR
