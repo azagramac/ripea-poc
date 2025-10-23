@@ -69,7 +69,7 @@ jobs:
             - Repositorio fuente: [${{ github.event.inputs.repo }}](https://github.com/${{ github.event.inputs.repo }})
             - Rama: `${{ github.event.inputs.branch }}`
             - Artefacto: `.ear`
-            - Nota: ⚠️ Se ignoró temporalmente el módulo/plugin que requiere repositorio.viavansi.com si no era accesible
+            - Nota: ⚠️ Se ignoró temporalmente el módulo/plugin que requiere `repositorio.viavansi.com` si no era accesible.
             - Fecha de build: ${{ github.run_started_at }}
           draft: false
           prerelease: false
@@ -84,5 +84,5 @@ jobs:
           asset_name: RIPEA-${{ github.ref_name || github.event.inputs.branch }}.ear
           asset_content_type: application/java-archive
 
-      - name: ✅ Confirmación final
+      - name: ✅ EAR publicado
         run: echo "🎉 EAR publicado correctamente en el Release de GitHub"
